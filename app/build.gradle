@@ -83,6 +83,16 @@ dependencies {
     implementation(libs.converter.gson)
 
     // Testing
+
+    // Media 3
+    def media3_version = "1.2.0"
+    // For media playback using ExoPlayer
+    implementation "androidx.media3:media3-exoplayer:$media3_version"
+    // For building media playback UIs
+    implementation "androidx.media3:media3-ui:$media3_version"
+    // For exposing and controlling media sessions
+    implementation "androidx.media3:media3-session:$media3_version"
+    implementation "androidx.media:media:$media3_version"
 }
 
 // Allow references to generated code

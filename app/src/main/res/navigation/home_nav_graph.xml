@@ -6,6 +6,6 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.lemondog.lemonplayer.HomeFragment"
+        android:name="com.lemondog.lemonplayer.PlayerHomeFragment"
         android:label="HomeFragment" />
 </navigation>
