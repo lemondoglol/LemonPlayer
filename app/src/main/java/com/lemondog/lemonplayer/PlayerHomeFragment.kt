@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.viewinterop.AndroidView
@@ -58,7 +59,10 @@ class PlayerHomeFragment : Fragment() {
     private fun PlayerScreen(
         modifier: Modifier = Modifier,
     ) {
-        Column(modifier = modifier) {
+        Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             if (viewModel.playerReadyToUse.value) {
                 AndroidView(
                     factory = { context ->
@@ -71,8 +75,17 @@ class PlayerHomeFragment : Fragment() {
                         .aspectRatio(4f / 3f),
                 )
             }
-            Button(onClick = { viewModel.playAudioItem() }) {
-                Text(text = "Clieck me")
+
+            Button(onClick = { viewModel.play() }) {
+                Text(text = "Play")
+            }
+
+            Button(onClick = { viewModel.shufflePlayList() }) {
+                if (viewModel.shuffleModeEnabled.value) {
+                    Text(text = "Shuffle Mode On")
+                } else {
+                    Text(text = "Shuffle Mode Off")
+                }
             }
         }
     }
