@@ -2,15 +2,21 @@ package com.lemondog.lemonplayer.player
 
 import android.content.ComponentName
 import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.lemondog.lemonplayer.data.db.AudioItemEntity
 import com.lemondog.lemonplayer.data.repository.MusicRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,6 +38,17 @@ class Media3PlayerViewModel @Inject constructor(
 
     internal var shuffleModeEnabled = mutableStateOf(false)
         private set
+
+    private var currentPlaylist = mutableStateListOf<MediaItem>()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            musicRepository.getLocalMusics()?.let {
+                currentPlaylist.clear()
+                currentPlaylist.addAll(it)
+            }
+        }
+    }
 
     // Note: this method needs to be manually called in Fragment
     internal fun initMediaController() {
@@ -71,8 +88,8 @@ class Media3PlayerViewModel @Inject constructor(
         forceRefresh: Boolean = false,
     ) {
         if (!isPlayListLoaded) {
-            val playlist = musicRepository.getLocalMusics()
-            mediaController.setMediaItems(playlist)
+//            val playlist = musicRepository.getLocalMusics()
+            mediaController.setMediaItems(currentPlaylist)
             isPlayListLoaded = true
             mediaController.repeatMode = MediaController.REPEAT_MODE_ALL
         }
