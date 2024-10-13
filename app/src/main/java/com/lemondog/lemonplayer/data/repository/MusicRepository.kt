@@ -55,6 +55,59 @@ class MusicRepository @Inject constructor(
                 title = "老人与海",
                 coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
             ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}broken",
+                title = "Broken",
+                artist = "Love the Band",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}heartattack",
+                title = "Heart Attack",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}solo",
+                title = "Solo",
+                artist = "Clean Bandit",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}keepwalking",
+                title = "淋雨一直走",
+                artist = "Angela 張韶涵",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}thatgirl",
+                title = "That Girl",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}yujianni",
+                title = "世界這麼大還是遇見你",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}menran",
+                title = "少年-夢然",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}unstoppable",
+                title = "Unstoppable",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}dancemonkey",
+                title = "DANCE MONKEY",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
+            AudioItemEntity(
+                fileUri = "${LOCAL_MUSIC_PATH_PREFIX}donomar",
+                title = "Don Omar",
+                coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
+            ),
         )
         CoroutineScope(Dispatchers.IO).launch {
             audioItemDao.putAll(musicItems)
