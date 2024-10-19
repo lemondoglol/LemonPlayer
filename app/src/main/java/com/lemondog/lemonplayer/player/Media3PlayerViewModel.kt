@@ -3,7 +3,6 @@ package com.lemondog.lemonplayer.player
 import android.content.ComponentName
 import android.content.Context
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -31,27 +30,24 @@ class Media3PlayerViewModel @Inject constructor(
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
 
-    internal var playerReadyToUse = mutableStateOf(false)
-        private set
-
     private var isPlayListLoaded = false
 
     internal var shuffleModeEnabled = mutableStateOf(false)
         private set
 
-    private var currentPlaylist = mutableStateListOf<MediaItem>()
+    private var currentPlaylist = mutableListOf<MediaItem>()
 
     init {
+        initMediaController()
         viewModelScope.launch(Dispatchers.IO) {
             musicRepository.getLocalMusics()?.let {
-                currentPlaylist.clear()
                 currentPlaylist.addAll(it)
             }
         }
     }
 
     // Note: this method needs to be manually called in Fragment
-    internal fun initMediaController() {
+    private fun initMediaController() {
         val sessionToken = SessionToken(
             context,
             ComponentName(
@@ -63,7 +59,6 @@ class Media3PlayerViewModel @Inject constructor(
         controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         controllerFuture.addListener({
             mediaController = controllerFuture.get()
-            playerReadyToUse.value = true
             mediaController?.addListener(media3PlayerListener)
         }, MoreExecutors.directExecutor())
     }

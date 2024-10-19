@@ -28,13 +28,6 @@ class PlayerHomeFragment : Fragment() {
 
     private val viewModel: Media3PlayerViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (!viewModel.playerReadyToUse.value) {
-            viewModel.initMediaController()
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -63,7 +56,7 @@ class PlayerHomeFragment : Fragment() {
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (viewModel.playerReadyToUse.value) {
+            viewModel.mediaController?.let {
                 AndroidView(
                     factory = { context ->
                         PlayerView(context).also {
