@@ -16,8 +16,24 @@ class MusicRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val audioItemDao: AudioItemDao,
 ) {
+    suspend fun getLocalMusics(): List<MediaItem>? {
+        return audioItemDao.getAllAudioItems()?.map { audioItem ->
+            MediaItem.Builder().setUri(
+                audioItem.fileUri
+            ).setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(audioItem.title)
+                    .setArtist(audioItem.artist)
+                    .setArtworkUri(
+                        Uri.parse(audioItem.coverArtUri)
+                    )
+                    .build()
+            ).build()
+        }
+    }
+
     private val LOCAL_MUSIC_PATH_PREFIX = "android.resource://${context.packageName}/raw/"
-    private val DEFAULT_LOCAL_COVER_ART_PATH_PREFIX = "android.resource://${context.packageName}/drawable/music"
+    private val DEFAULT_LOCAL_COVER_ART_PATH_PREFIX = "${LOCAL_MUSIC_PATH_PREFIX}musicoverwatch"
     init {
         val musicItems = listOf(
             AudioItemEntity(
@@ -111,22 +127,6 @@ class MusicRepository @Inject constructor(
         )
         CoroutineScope(Dispatchers.IO).launch {
             audioItemDao.putAll(musicItems)
-        }
-    }
-
-    suspend fun getLocalMusics(): List<MediaItem>? {
-        return audioItemDao.getAllAudioItems()?.map { audioItem ->
-            MediaItem.Builder().setUri(
-                audioItem.fileUri
-            ).setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(audioItem.title)
-                    .setArtist(audioItem.artist)
-                    .setArtworkUri(
-                        Uri.parse(audioItem.coverArtUri)
-                    )
-                    .build()
-            ).build()
         }
     }
 }

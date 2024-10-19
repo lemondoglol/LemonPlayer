@@ -2,8 +2,10 @@ package com.lemondog.lemonplayer.player
 
 import android.content.ComponentName
 import android.content.Context
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -11,7 +13,6 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import com.lemondog.lemonplayer.data.db.AudioItemEntity
 import com.lemondog.lemonplayer.data.repository.MusicRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,9 +26,8 @@ class Media3PlayerViewModel @Inject constructor(
     private val media3PlayerListener: PlayerListener,
     private val musicRepository: MusicRepository,
 ) : ViewModel() {
-
-    // TODO, check how to expose this, use a StateFlow to determine if it's ready to be used
-    lateinit var mediaController: MediaController
+    internal var mediaController by mutableStateOf<MediaController?>(null)
+        private set
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
 
@@ -64,34 +64,33 @@ class Media3PlayerViewModel @Inject constructor(
         controllerFuture.addListener({
             mediaController = controllerFuture.get()
             playerReadyToUse.value = true
-            mediaController.addListener(media3PlayerListener)
+            mediaController?.addListener(media3PlayerListener)
         }, MoreExecutors.directExecutor())
     }
 
     internal fun play() {
         loadPlaylist()
-        mediaController.shuffleModeEnabled = false
-        if (mediaController.isPlaying) {
-            mediaController.pause()
+        mediaController?.shuffleModeEnabled = false
+        if (mediaController?.isPlaying == true) {
+            mediaController?.pause()
         } else {
-            mediaController.prepare()
-            mediaController.play()
+            mediaController?.prepare()
+            mediaController?.play()
         }
     }
 
     internal fun shufflePlayList() {
         shuffleModeEnabled.value = !shuffleModeEnabled.value
-        mediaController.shuffleModeEnabled = shuffleModeEnabled.value
+        mediaController?.shuffleModeEnabled = shuffleModeEnabled.value
     }
 
     private fun loadPlaylist(
         forceRefresh: Boolean = false,
     ) {
         if (!isPlayListLoaded) {
-//            val playlist = musicRepository.getLocalMusics()
-            mediaController.setMediaItems(currentPlaylist)
+            mediaController?.setMediaItems(currentPlaylist)
             isPlayListLoaded = true
-            mediaController.repeatMode = MediaController.REPEAT_MODE_ALL
+            mediaController?.repeatMode = MediaController.REPEAT_MODE_ALL
         }
     }
 
