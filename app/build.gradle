@@ -39,7 +39,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.2.0"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 
@@ -50,6 +50,8 @@ dependencies {
 
     // Material 3
     implementation(libs.androidx.material3)
+
+    // icons
 
     // Compose https://developer.android.com/jetpack/androidx/releases/compose-kotlin
     implementation(libs.androidx.ui)
@@ -85,21 +87,20 @@ dependencies {
     // Testing
 
     // Media 3
-    def media3_version = "1.2.0"
     // For media playback using ExoPlayer
-    implementation "androidx.media3:media3-exoplayer:$media3_version"
+    implementation libs.androidx.media3.exoplayer
     // For building media playback UIs
-    implementation "androidx.media3:media3-ui:$media3_version"
+    implementation libs.androidx.media3.ui
     // For exposing and controlling media sessions
-    implementation "androidx.media3:media3-session:$media3_version"
-    implementation "androidx.media:media:$media3_version"
+    implementation libs.androidx.media3.session
+    implementation libs.androidx.media
 
     // RoomDB
-    def room_version = "2.4.3"
-    implementation "androidx.room:room-runtime:$room_version"
+    def room_version = "2.6.1"
+    implementation libs.androidx.room.runtime
+    implementation libs.androidx.room.ktx
     annotationProcessor "androidx.room:room-compiler:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
 }
 
 // Allow references to generated code

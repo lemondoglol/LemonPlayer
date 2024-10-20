@@ -46,7 +46,6 @@ class Media3PlayerViewModel @Inject constructor(
         }
     }
 
-    // Note: this method needs to be manually called in Fragment
     private fun initMediaController() {
         val sessionToken = SessionToken(
             context,

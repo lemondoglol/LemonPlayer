@@ -7,7 +7,8 @@ import androidx.room.RoomDatabase
     entities = [
         AudioItemEntity::class
     ],
-    version = 1
+    version = 1,
+    exportSchema = false,
 )
 abstract class AppRoomDatabase : RoomDatabase() {
     abstract fun audioItemDao(): AudioItemDao

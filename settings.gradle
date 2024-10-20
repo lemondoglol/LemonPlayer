@@ -14,5 +14,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "LemonPlayer"
 include ':app'
-enableFeaturePreview("VERSION_CATALOGS")
-include ':Media3Player'
