@@ -7,12 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.lemondog.lemonplayer.data.repository.MusicRepository
+import com.lemondog.lemonplayer.player.model.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -35,13 +35,16 @@ class Media3PlayerViewModel @Inject constructor(
     internal var shuffleModeEnabled = mutableStateOf(false)
         private set
 
-    private var currentPlaylist = mutableListOf<MediaItem>()
+    internal var playerState by mutableStateOf(PlayerState())
+        private set
 
     init {
         initMediaController()
         viewModelScope.launch(Dispatchers.IO) {
             musicRepository.getLocalMusics()?.let {
-                currentPlaylist.addAll(it)
+                playerState = playerState.copy(
+                    playlist = it,
+                )
             }
         }
     }
@@ -62,15 +65,33 @@ class Media3PlayerViewModel @Inject constructor(
         }, MoreExecutors.directExecutor())
     }
 
-    internal fun play() {
+    internal fun playPause() {
         loadPlaylist()
-        mediaController?.shuffleModeEnabled = false
         if (mediaController?.isPlaying == true) {
             mediaController?.pause()
+            playerState = playerState.copy(isPlaying = false)
         } else {
             mediaController?.prepare()
             mediaController?.play()
+            playerState = playerState.copy(
+                isPlaying = true,
+                currentPlayingItem = mediaController?.currentMediaItem,
+            )
         }
+    }
+
+    internal fun playNext() {
+        mediaController?.seekToNext()
+        playerState = playerState.copy(
+            currentPlayingItem = mediaController?.currentMediaItem,
+        )
+    }
+
+    internal fun playPrevious() {
+        mediaController?.seekToPrevious()
+        playerState = playerState.copy(
+            currentPlayingItem = mediaController?.currentMediaItem,
+        )
     }
 
     internal fun shufflePlayList() {
@@ -82,7 +103,8 @@ class Media3PlayerViewModel @Inject constructor(
         forceRefresh: Boolean = false,
     ) {
         if (!isPlayListLoaded) {
-            mediaController?.setMediaItems(currentPlaylist)
+//        if (playerState.playlist.isEmpty()) { // TODO figure out why this one doesnt work
+            mediaController?.setMediaItems(playerState.playlist)
             isPlayListLoaded = true
             mediaController?.repeatMode = MediaController.REPEAT_MODE_ALL
         }

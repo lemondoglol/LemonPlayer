@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     // icons
+    implementation(libs.androidx.material3.icons.extened)
 
     // Compose https://developer.android.com/jetpack/androidx/releases/compose-kotlin
     implementation(libs.androidx.ui)

@@ -116,7 +116,7 @@ class MusicRepository @Inject constructor(
             ),
             AudioItemEntity(
                 fileUri = "${LOCAL_MUSIC_PATH_PREFIX}dancemonkey",
-                title = "DANCE MONKEY",
+                title = "Dance Monkey",
                 coverArtUri = DEFAULT_LOCAL_COVER_ART_PATH_PREFIX,
             ),
             AudioItemEntity(
