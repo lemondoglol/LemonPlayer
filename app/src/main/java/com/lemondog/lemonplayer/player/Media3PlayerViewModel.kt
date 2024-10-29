@@ -30,8 +30,6 @@ class Media3PlayerViewModel @Inject constructor(
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
 
-    private var isPlayListLoaded = false
-
     internal var shuffleModeEnabled = mutableStateOf(false)
         private set
 
@@ -102,11 +100,12 @@ class Media3PlayerViewModel @Inject constructor(
     private fun loadPlaylist(
         forceRefresh: Boolean = false,
     ) {
-        if (!isPlayListLoaded) {
-//        if (playerState.playlist.isEmpty()) { // TODO figure out why this one doesnt work
+        if (!playerState.isPlayerLoaded) {
             mediaController?.setMediaItems(playerState.playlist)
-            isPlayListLoaded = true
             mediaController?.repeatMode = MediaController.REPEAT_MODE_ALL
+            playerState = playerState.copy(
+                isPlayerLoaded = true,
+            )
         }
     }
 

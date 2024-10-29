@@ -6,6 +6,7 @@ data class PlayerState(
     val isPlaying: Boolean = false,
     val currentPlayingItem: MediaItem? = null,
     val playlist: List<MediaItem> = emptyList(),
+    val isPlayerLoaded: Boolean = false,
 ) {
     fun isPlaylistLoaded(): Boolean = this.playlist.isNotEmpty()
 }
