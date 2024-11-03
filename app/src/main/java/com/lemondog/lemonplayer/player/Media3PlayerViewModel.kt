@@ -7,24 +7,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.lemondog.lemonplayer.data.repository.MusicRepository
+import com.lemondog.lemonplayer.player.model.PlayerItemState
+import com.lemondog.lemonplayer.player.model.PlayerItemState.Companion.DURATION_UNSET
 import com.lemondog.lemonplayer.player.model.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class Media3PlayerViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val media3PlayerListener: PlayerListener,
     private val musicRepository: MusicRepository,
-) : ViewModel() {
+) : ViewModel(), Player.Listener {
     internal var mediaController by mutableStateOf<MediaController?>(null)
         private set
 
@@ -35,6 +39,12 @@ class Media3PlayerViewModel @Inject constructor(
 
     internal var playerState by mutableStateOf(PlayerState())
         private set
+
+    // Note: this is frequently being updated
+    internal var playerItemState by mutableStateOf(PlayerItemState())
+        private set
+
+    private var positionUpdateJob: Job? = null
 
     init {
         initMediaController()
@@ -59,7 +69,7 @@ class Media3PlayerViewModel @Inject constructor(
         controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         controllerFuture.addListener({
             mediaController = controllerFuture.get()
-            mediaController?.addListener(media3PlayerListener)
+            mediaController?.addListener(this@Media3PlayerViewModel)
         }, MoreExecutors.directExecutor())
     }
 
@@ -109,8 +119,52 @@ class Media3PlayerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Player.Listener Interface Begin
+     */
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        super.onPlaybackStateChanged(playbackState)
+        when (playbackState) {
+            Player.STATE_READY -> {
+                mediaController?.duration?.let { duration ->
+                    playerItemState = playerItemState.copy(
+                        title = mediaController?.mediaMetadata?.title.toString(),
+                        duration = duration,
+                    )
+                }
+                // Update PositionUpdate Job
+                positionUpdateJob?.cancel()
+                positionUpdateJob = viewModelScope.launch {
+                    while (true) {
+                        mediaController?.currentPosition?.let { currentPosition ->
+                            if (playerItemState.duration != DURATION_UNSET) {
+                                playerItemState = playerItemState.copy(
+                                    progress = (currentPosition.toFloat() / playerItemState.duration.toFloat())
+                                )
+                            }
+                            delay(positionUpdateInterval)
+                        }
+                    }
+                }
+            }
+            Player.STATE_ENDED -> {
+                positionUpdateJob?.cancel()
+                positionUpdateJob = null
+            }
+            else -> Unit
+        }
+    }
+    /**
+     * Player.Listener Interface End
+     */
+
     override fun onCleared() {
         super.onCleared()
         MediaController.releaseFuture(controllerFuture)
+        positionUpdateJob?.cancel()
+    }
+
+    companion object {
+        private const val positionUpdateInterval: Long = 1000 // 1 second
     }
 }

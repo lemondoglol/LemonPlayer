@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +35,7 @@ import androidx.media3.ui.PlayerView
 import com.lemondog.lemonplayer.player.Media3PlayerViewModel
 import com.lemondog.lemonplayer.player.view.PlayerControllerButton
 import com.lemondog.lemonplayer.ui.dimens.Padding
+import com.lemondog.lemonplayer.ui.dimens.Size
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -68,12 +71,17 @@ class PlayerHomeFragment : Fragment() {
         modifier: Modifier = Modifier,
     ) {
         Column(
-            modifier = modifier,
+            modifier = modifier.padding(Padding.XSmall),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             PlayerView(requireContext()).also {
                 it.player = viewModel.mediaController
             }
+            LinearProgressIndicator(
+                progress = { viewModel.playerItemState.progress },
+                modifier = Modifier.fillMaxWidth().height(Size.XSmall),
+            )
+
             PlayerControllerSection(
                 modifier = Modifier
                     .fillMaxWidth()

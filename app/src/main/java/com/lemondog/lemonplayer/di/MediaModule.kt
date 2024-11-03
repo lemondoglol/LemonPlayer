@@ -6,7 +6,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.session.MediaSession
-import com.lemondog.lemonplayer.player.PlayerListener
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,10 +16,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object MediaModule {
-
-    @Provides
-    @Singleton
-    fun provideWikiPlayerListener(): PlayerListener = PlayerListener()
 
     @OptIn(UnstableApi::class)
     @Singleton
