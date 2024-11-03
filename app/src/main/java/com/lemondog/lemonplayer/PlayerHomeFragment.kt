@@ -17,16 +17,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -54,6 +58,9 @@ class PlayerHomeFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 Scaffold(
+                    topBar = {
+                        AppBarSection()
+                    },
                     content = {
                         PlaybackSection(
                             modifier = Modifier
@@ -64,6 +71,27 @@ class PlayerHomeFragment : Fragment() {
                 )
             }
         }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun AppBarSection(
+        modifier: Modifier = Modifier,
+    ) {
+        TopAppBar(
+            title = { Text(text = stringResource(R.string.lemonplayer))},
+            actions = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    PlayerControllerButton(
+                        onClick = viewModel::shufflePlayList,
+                        icon = Icons.Filled.Shuffle,
+                        boxSize = Size.AppActionButtonSize,
+                    )
+                }
+            },
+        )
     }
 
     @Composable
@@ -79,7 +107,9 @@ class PlayerHomeFragment : Fragment() {
             }
             LinearProgressIndicator(
                 progress = { viewModel.playerItemState.progress },
-                modifier = Modifier.fillMaxWidth().height(Size.XSmall),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(Size.XSmall),
             )
 
             PlayerControllerSection(

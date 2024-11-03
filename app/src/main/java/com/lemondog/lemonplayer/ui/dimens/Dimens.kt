@@ -9,6 +9,7 @@ object Size {
     val XXSmall = 8.dp
     val XSmall = 12.dp
     val Small = 24.dp
+    val AppActionButtonSize = 40.dp
     val Medium = 48.dp
     val Large = 64.dp
     val LargeP = 96.dp
