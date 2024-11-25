@@ -167,7 +167,13 @@ class PlayerHomeFragment : Fragment() {
         LazyColumn(
             modifier = modifier,
         ) {
-            items(playlistItems) {
+            items(
+                items = playlistItems,
+                // Ideally, this should use a unique key to reduce unnecessary recompose
+//                key = {
+//                    it.mediaId
+//                },
+            ) {
                 // TODO Update View Here
                 if (currentPlayingItem?.mediaMetadata?.title == it.mediaMetadata.title) {
                     Text(text = "Current Playing Item: ${it.mediaMetadata.title}")

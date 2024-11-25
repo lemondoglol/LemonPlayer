@@ -6,19 +6,23 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.lemondog.lemonplayer.data.db.AudioItemDao
 import com.lemondog.lemonplayer.data.db.AudioItemEntity
+import com.lemondog.lemonplayer.di.ApplicationCoroutineScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MusicRepository @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val applicationCoroutineScope: ApplicationCoroutineScope,
     private val audioItemDao: AudioItemDao,
 ) {
-    fun getLocalMusicsFlow(): Flow<List<MediaItem>> {
+    fun getLocalMusicsStateFlow(): StateFlow<List<MediaItem>> {
         return audioItemDao.getAllAudioItemsFlow().map { list ->
             list.map { audioItem ->
                 MediaItem.Builder().setUri(
@@ -33,7 +37,11 @@ class MusicRepository @Inject constructor(
                         .build()
                 ).build()
             }
-        }
+        }.stateIn(
+            scope = applicationCoroutineScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = emptyList(),
+        )
     }
 
     private val LOCAL_MUSIC_PATH_PREFIX = "android.resource://${context.packageName}/raw/"

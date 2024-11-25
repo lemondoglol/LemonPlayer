@@ -52,7 +52,7 @@ class Media3PlayerViewModel @Inject constructor(
     init {
         initMediaController()
         viewModelScope.launch(Dispatchers.IO) {
-            musicRepository.getLocalMusicsFlow().collectLatest {
+            musicRepository.getLocalMusicsStateFlow().collectLatest {
                 playerState = playerState.copy(
                     playlist = it,
                 )
