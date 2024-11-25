@@ -2,7 +2,6 @@ package com.lemondog.lemonplayer.ui.dimens
 
 import androidx.compose.ui.unit.dp
 
-// TODO, rename this size to something more consistent
 object Dimens {
 }
 
@@ -12,8 +11,8 @@ object Size {
     val Small = 24.dp
     val AppActionButtonSize = 40.dp
     val Medium = 48.dp
-    val Large = 64.dp
-    val LargeP = 96.dp
+    val ControllerButtonIconSize = 64.dp
+    val ControllerButtonBoxSize = 96.dp
     val DLarge = 128.dp
 }
 

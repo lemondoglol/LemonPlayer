@@ -17,8 +17,8 @@ import com.lemondog.lemonplayer.ui.dimens.Size
 fun PlayerControllerButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    iconSize: Dp = Size.Large,
-    boxSize: Dp = Size.LargeP,
+    iconSize: Dp = Size.ControllerButtonIconSize,
+    boxSize: Dp = Size.ControllerButtonBoxSize,
     icon: ImageVector,
 ) {
     Box(
