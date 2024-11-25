@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Forward30
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
@@ -30,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.media3.common.MediaItem
@@ -135,6 +136,11 @@ class PlayerHomeFragment : Fragment() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
+            PlayerControllerButton(
+                onClick = viewModel::seekBack,
+                icon = Icons.Filled.Replay,
+            )
+
             // Previous, Play/Pause, Next
             PlayerControllerButton(
                 onClick = viewModel::playPrevious,
@@ -154,6 +160,11 @@ class PlayerHomeFragment : Fragment() {
             PlayerControllerButton(
                 onClick = viewModel::playNext,
                 icon = Icons.Filled.SkipNext,
+            )
+
+            PlayerControllerButton(
+                onClick = viewModel::seekForward,
+                icon = Icons.Filled.Forward30,
             )
         }
     }

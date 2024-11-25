@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// TODO implement dataStore to store user pref such as shuffle mode
 @HiltViewModel
 class Media3PlayerViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -105,6 +106,19 @@ class Media3PlayerViewModel @Inject constructor(
         )
     }
 
+    internal fun seekBack(timerInterval: Long = defaultSeekInterval) {
+        mediaController?.currentPosition?.let {
+            val newPosition = it - timerInterval
+            mediaController?.seekTo(newPosition.coerceAtLeast(0))
+        }
+    }
+
+    internal fun seekForward(timerInterval: Long = defaultSeekInterval) {
+        mediaController?.currentPosition?.let {
+            mediaController?.seekTo(it + timerInterval)
+        }
+    }
+
     internal fun shufflePlayList() {
         appBarUIState = appBarUIState.copy(
             isShuffleModelOn = when (appBarUIState.isShuffleModelOn) {
@@ -175,5 +189,6 @@ class Media3PlayerViewModel @Inject constructor(
 
     companion object {
         private const val positionUpdateInterval: Long = 1000 // 1 second
+        private const val defaultSeekInterval: Long = 5000
     }
 }

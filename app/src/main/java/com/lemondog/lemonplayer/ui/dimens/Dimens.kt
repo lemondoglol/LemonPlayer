@@ -12,7 +12,7 @@ object Size {
     val AppActionButtonSize = 40.dp
     val Medium = 48.dp
     val ControllerButtonIconSize = 64.dp
-    val ControllerButtonBoxSize = 96.dp
+    val ControllerButtonBoxSize = 72.dp
     val DLarge = 128.dp
 }
 
