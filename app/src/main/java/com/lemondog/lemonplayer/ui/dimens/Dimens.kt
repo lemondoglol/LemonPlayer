@@ -2,6 +2,7 @@ package com.lemondog.lemonplayer.ui.dimens
 
 import androidx.compose.ui.unit.dp
 
+// TODO, rename this size to something more consistent
 object Dimens {
 }
 

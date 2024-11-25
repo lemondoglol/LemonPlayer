@@ -22,7 +22,7 @@ fun PlayerControllerButton(
     icon: ImageVector,
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(boxSize)
             .clip(CircleShape)
             .clickable { onClick() },

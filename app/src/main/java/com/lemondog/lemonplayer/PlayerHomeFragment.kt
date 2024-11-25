@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,7 +19,6 @@ import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
@@ -29,6 +27,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
@@ -42,9 +41,6 @@ import com.lemondog.lemonplayer.ui.dimens.Padding
 import com.lemondog.lemonplayer.ui.dimens.Size
 import dagger.hilt.android.AndroidEntryPoint
 
-/**
- * TODO Google how to create custom media3 player
- * */
 @AndroidEntryPoint
 class PlayerHomeFragment : Fragment() {
 
@@ -85,6 +81,10 @@ class PlayerHomeFragment : Fragment() {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     PlayerControllerButton(
+                        modifier = when (viewModel.appBarUIState.isShuffleModelOn) {
+                            true -> Modifier.alpha(1.0f)
+                            false -> Modifier.alpha(0.5f)
+                        },
                         onClick = viewModel::shufflePlayList,
                         icon = Icons.Filled.Shuffle,
                         boxSize = Size.AppActionButtonSize,
@@ -135,7 +135,6 @@ class PlayerHomeFragment : Fragment() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            // TODO add progress bar, don't add to the state, create a new one CurrentPlayingItemState
             // Previous, Play/Pause, Next
             PlayerControllerButton(
                 onClick = viewModel::playPrevious,
@@ -180,38 +179,38 @@ class PlayerHomeFragment : Fragment() {
     }
 
     // Default Player View
-    @Composable
-    private fun PlayerScreen(
-        modifier: Modifier = Modifier,
-    ) {
-        Column(
-            modifier = modifier,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            viewModel.mediaController?.let {
-                AndroidView(
-                    factory = { context ->
-                        PlayerView(context).also {
-                            it.player = viewModel.mediaController
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(4f / 3f),
-                )
-            }
-
-            Button(onClick = { viewModel.playPause() }) {
-                Text(text = "Play")
-            }
-
-            Button(onClick = { viewModel.shufflePlayList() }) {
-                if (viewModel.shuffleModeEnabled.value) {
-                    Text(text = "Shuffle Mode On")
-                } else {
-                    Text(text = "Shuffle Mode Off")
-                }
-            }
-        }
-    }
+//    @Composable
+//    private fun PlayerScreen(
+//        modifier: Modifier = Modifier,
+//    ) {
+//        Column(
+//            modifier = modifier,
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//        ) {
+//            viewModel.mediaController?.let {
+//                AndroidView(
+//                    factory = { context ->
+//                        PlayerView(context).also {
+//                            it.player = viewModel.mediaController
+//                        }
+//                    },
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .aspectRatio(4f / 3f),
+//                )
+//            }
+//
+//            Button(onClick = { viewModel.playPause() }) {
+//                Text(text = "Play")
+//            }
+//
+//            Button(onClick = { viewModel.shufflePlayList() }) {
+//                if (viewModel.shuffleModeEnabled.value) {
+//                    Text(text = "Shuffle Mode On")
+//                } else {
+//                    Text(text = "Shuffle Mode Off")
+//                }
+//            }
+//        }
+//    }
 }

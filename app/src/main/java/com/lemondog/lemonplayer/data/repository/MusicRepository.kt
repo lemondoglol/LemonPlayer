@@ -9,6 +9,8 @@ import com.lemondog.lemonplayer.data.db.AudioItemEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,19 +18,21 @@ class MusicRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val audioItemDao: AudioItemDao,
 ) {
-    suspend fun getLocalMusics(): List<MediaItem>? {
-        return audioItemDao.getAllAudioItems()?.map { audioItem ->
-            MediaItem.Builder().setUri(
-                audioItem.fileUri
-            ).setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(audioItem.title)
-                    .setArtist(audioItem.artist)
-                    .setArtworkUri(
-                        Uri.parse(audioItem.coverArtUri)
-                    )
-                    .build()
-            ).build()
+    fun getLocalMusicsFlow(): Flow<List<MediaItem>> {
+        return audioItemDao.getAllAudioItemsFlow().map { list ->
+            list.map { audioItem ->
+                MediaItem.Builder().setUri(
+                    audioItem.fileUri
+                ).setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(audioItem.title)
+                        .setArtist(audioItem.artist)
+                        .setArtworkUri(
+                            Uri.parse(audioItem.coverArtUri)
+                        )
+                        .build()
+                ).build()
+            }
         }
     }
 

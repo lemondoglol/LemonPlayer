@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AudioItemDao {
@@ -15,4 +16,7 @@ interface AudioItemDao {
 
     @Query("Select * From $AUDIO_ITEM_TABLE_NAME")
     suspend fun getAllAudioItems(): List<AudioItemEntity>?
+
+    @Query("Select * From $AUDIO_ITEM_TABLE_NAME")
+    fun getAllAudioItemsFlow(): Flow<List<AudioItemEntity>>
 }

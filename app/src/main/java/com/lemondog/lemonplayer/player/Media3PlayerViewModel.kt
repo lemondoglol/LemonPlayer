@@ -2,6 +2,7 @@ package com.lemondog.lemonplayer.player
 
 import android.content.ComponentName
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +13,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.lemondog.lemonplayer.appbar.model.AppBarState
 import com.lemondog.lemonplayer.data.repository.MusicRepository
 import com.lemondog.lemonplayer.player.model.PlayerItemState
 import com.lemondog.lemonplayer.player.model.PlayerItemState.Companion.DURATION_UNSET
@@ -21,6 +23,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,7 +37,7 @@ class Media3PlayerViewModel @Inject constructor(
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
 
-    internal var shuffleModeEnabled = mutableStateOf(false)
+    internal var appBarUIState by mutableStateOf(AppBarState.DEFAULT_STATE)
         private set
 
     internal var playerState by mutableStateOf(PlayerState())
@@ -49,7 +52,7 @@ class Media3PlayerViewModel @Inject constructor(
     init {
         initMediaController()
         viewModelScope.launch(Dispatchers.IO) {
-            musicRepository.getLocalMusics()?.let {
+            musicRepository.getLocalMusicsFlow().collectLatest {
                 playerState = playerState.copy(
                     playlist = it,
                 )
@@ -78,7 +81,7 @@ class Media3PlayerViewModel @Inject constructor(
         if (mediaController?.isPlaying == true) {
             mediaController?.pause()
             playerState = playerState.copy(isPlaying = false)
-        } else {
+        } else if (playerState.isPlayerLoaded) {
             mediaController?.prepare()
             mediaController?.play()
             playerState = playerState.copy(
@@ -103,14 +106,20 @@ class Media3PlayerViewModel @Inject constructor(
     }
 
     internal fun shufflePlayList() {
-        shuffleModeEnabled.value = !shuffleModeEnabled.value
-        mediaController?.shuffleModeEnabled = shuffleModeEnabled.value
+        appBarUIState = appBarUIState.copy(
+            isShuffleModelOn = when (appBarUIState.isShuffleModelOn) {
+                true -> false
+                false -> true
+            },
+        )
+        mediaController?.shuffleModeEnabled = appBarUIState.isShuffleModelOn
     }
 
     private fun loadPlaylist(
         forceRefresh: Boolean = false,
     ) {
-        if (!playerState.isPlayerLoaded) {
+        if (!playerState.isPlayerLoaded && playerState.playlist.isNotEmpty()) {
+            Log.d("Lemondog", "current playlist size: ${playerState.playlist.size}")
             mediaController?.setMediaItems(playerState.playlist)
             mediaController?.repeatMode = MediaController.REPEAT_MODE_ALL
             playerState = playerState.copy(
