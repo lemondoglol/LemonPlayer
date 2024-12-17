@@ -136,11 +136,6 @@ class PlayerHomeFragment : Fragment() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            PlayerControllerButton(
-                onClick = viewModel::seekBack,
-                icon = Icons.Filled.Replay,
-            )
-
             // Previous, Play/Pause, Next
             PlayerControllerButton(
                 onClick = viewModel::playPrevious,
