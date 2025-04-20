@@ -1,8 +1,6 @@
 package com.lemondog.lemonplayer.player
 
-import android.content.ComponentName
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,9 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
-import com.google.common.util.concurrent.ListenableFuture
-import com.google.common.util.concurrent.MoreExecutors
 import com.lemondog.lemonplayer.appbar.model.AppBarState
 import com.lemondog.lemonplayer.data.repository.MusicRepository
 import com.lemondog.lemonplayer.player.model.PlayerItemState
@@ -32,11 +27,10 @@ import javax.inject.Inject
 class Media3PlayerViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val musicRepository: MusicRepository,
+    private val lemonMediaController: LemonMediaController,
 ) : ViewModel(), Player.Listener {
-    internal var mediaController by mutableStateOf<MediaController?>(null)
-        private set
 
-    private lateinit var controllerFuture: ListenableFuture<MediaController>
+    var mediaController: MediaController? = null
 
     internal var appBarUIState by mutableStateOf(AppBarState.DEFAULT_STATE)
         private set
@@ -51,8 +45,12 @@ class Media3PlayerViewModel @Inject constructor(
     private var positionUpdateJob: Job? = null
 
     init {
-        initMediaController()
         viewModelScope.launch(Dispatchers.IO) {
+            lemonMediaController.initMediaController({
+                mediaController = it
+                mediaController?.addListener(this@Media3PlayerViewModel)
+            })
+
             musicRepository.getLocalMusicsStateFlow().collectLatest {
                 playerState = playerState.copy(
                     playlist = it,
@@ -61,62 +59,51 @@ class Media3PlayerViewModel @Inject constructor(
         }
     }
 
-    private fun initMediaController() {
-        val sessionToken = SessionToken(
-            context,
-            ComponentName(
-                context,
-                PlayerService::class.java,
-            )
-        )
-
-        controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-        controllerFuture.addListener({
-            mediaController = controllerFuture.get()
-            mediaController?.addListener(this@Media3PlayerViewModel)
-        }, MoreExecutors.directExecutor())
-    }
-
     internal fun playPause() {
         loadPlaylist()
-        if (mediaController?.isPlaying == true) {
-            mediaController?.pause()
+        if (lemonMediaController.isPlaying()) {
+            lemonMediaController.pause()
             playerState = playerState.copy(isPlaying = false)
         } else if (playerState.isPlayerLoaded) {
-            mediaController?.prepare()
-            mediaController?.play()
+            lemonMediaController.play()
+
             playerState = playerState.copy(
                 isPlaying = true,
-                currentPlayingItem = mediaController?.currentMediaItem,
+                currentPlayingItem = lemonMediaController.getCurrentlyPlayingItem(),
             )
         }
     }
 
+    /**
+     * For handling custom command
+     * */
+    private fun testingCustomCommand() {
+        lemonMediaController.sveToFavorites()
+    }
+
     internal fun playNext() {
-        mediaController?.seekToNext()
+        lemonMediaController.playNext()
         playerState = playerState.copy(
-            currentPlayingItem = mediaController?.currentMediaItem,
+            currentPlayingItem = lemonMediaController.getCurrentlyPlayingItem(),
         )
     }
 
     internal fun playPrevious() {
-        mediaController?.seekToPrevious()
+        lemonMediaController.playPrevious()
         playerState = playerState.copy(
-            currentPlayingItem = mediaController?.currentMediaItem,
+            currentPlayingItem = lemonMediaController.getCurrentlyPlayingItem(),
         )
     }
 
-    internal fun seekBack(timerInterval: Long = defaultSeekInterval) {
-        mediaController?.currentPosition?.let {
-            val newPosition = it - timerInterval
-            mediaController?.seekTo(newPosition.coerceAtLeast(0))
-        }
-    }
+//    internal fun seekBack(timerInterval: Long = defaultSeekInterval) {
+//        mediaController?.currentPosition?.let {
+//            val newPosition = it - timerInterval
+//            mediaController?.seekTo(newPosition.coerceAtLeast(0))
+//        }
+//    }
 
     internal fun seekForward(timerInterval: Long = defaultSeekInterval) {
-        mediaController?.currentPosition?.let {
-            mediaController?.seekTo(it + timerInterval)
-        }
+        lemonMediaController.seekForward(timerInterval)
     }
 
     internal fun shufflePlayList() {
@@ -126,16 +113,14 @@ class Media3PlayerViewModel @Inject constructor(
                 false -> true
             },
         )
-        mediaController?.shuffleModeEnabled = appBarUIState.isShuffleModelOn
+        lemonMediaController.shuffleMode(appBarUIState.isShuffleModelOn)
     }
 
     private fun loadPlaylist(
         forceRefresh: Boolean = false,
     ) {
         if (!playerState.isPlayerLoaded && playerState.playlist.isNotEmpty()) {
-            Log.d("Lemondog", "current playlist size: ${playerState.playlist.size}")
-            mediaController?.setMediaItems(playerState.playlist)
-            mediaController?.repeatMode = MediaController.REPEAT_MODE_ALL
+            lemonMediaController.loadPlaylist(playerState.playlist)
             playerState = playerState.copy(
                 isPlayerLoaded = true,
             )
@@ -149,9 +134,10 @@ class Media3PlayerViewModel @Inject constructor(
         super.onPlaybackStateChanged(playbackState)
         when (playbackState) {
             Player.STATE_READY -> {
-                mediaController?.duration?.let { duration ->
+                val currentItemMetadata = lemonMediaController.getCurrentlyPlayingItemMetadata()
+                lemonMediaController.getDuration()?.let { duration ->
                     playerItemState = playerItemState.copy(
-                        title = mediaController?.mediaMetadata?.title.toString(),
+                        title = currentItemMetadata?.title.toString(),
                         duration = duration,
                     )
                 }
@@ -159,7 +145,7 @@ class Media3PlayerViewModel @Inject constructor(
                 positionUpdateJob?.cancel()
                 positionUpdateJob = viewModelScope.launch {
                     while (true) {
-                        mediaController?.currentPosition?.let { currentPosition ->
+                        lemonMediaController.getCurrentPosition()?.let { currentPosition ->
                             if (playerItemState.duration != DURATION_UNSET) {
                                 playerItemState = playerItemState.copy(
                                     progress = (currentPosition.toFloat() / playerItemState.duration.toFloat())
@@ -183,7 +169,7 @@ class Media3PlayerViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        MediaController.releaseFuture(controllerFuture)
+        lemonMediaController.releaseFuture()
         positionUpdateJob?.cancel()
     }
 

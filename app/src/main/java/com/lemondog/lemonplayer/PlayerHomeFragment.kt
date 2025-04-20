@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Forward30
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
@@ -103,8 +102,10 @@ class PlayerHomeFragment : Fragment() {
             modifier = modifier.padding(Padding.XSmall),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            PlayerView(requireContext()).also {
-                it.player = viewModel.mediaController
+            if (viewModel.playerState.isPlayerLoaded) {
+                PlayerView(requireContext()).also {
+                    it.player = viewModel.mediaController
+                }
             }
             LinearProgressIndicator(
                 progress = { viewModel.playerItemState.progress },

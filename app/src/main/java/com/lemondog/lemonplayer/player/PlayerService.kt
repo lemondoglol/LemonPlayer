@@ -12,7 +12,14 @@ class PlayerService : MediaSessionService() {
     // To enable background playback, define Player and MediaSession inside a separate service
     // MediaSession should only be defined in here
     @Inject
-    lateinit var mediaSession: MediaSession
+    lateinit var mediaSessionProvider: LemonPlayerMediaSessionProvider
+
+    private lateinit var mediaSession: MediaSession
+
+    override fun onCreate() {
+        super.onCreate()
+        mediaSession = mediaSessionProvider.mediaSession
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return super.onStartCommand(intent, flags, startId)
