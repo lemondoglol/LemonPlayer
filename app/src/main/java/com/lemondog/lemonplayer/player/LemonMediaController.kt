@@ -11,13 +11,20 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
+import com.lemondog.lemonplayer.data.datastore.LemonPlayerPreferencesRepository
+import com.lemondog.lemonplayer.data.repository.DataStoreKeys
+import com.lemondog.lemonplayer.di.ApplicationCoroutineScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LemonMediaController @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val preferencesRepository: LemonPlayerPreferencesRepository,
+    private val applicationCoroutineScope: ApplicationCoroutineScope,
 ) {
     private var mediaController: MediaController? = null
 
@@ -46,6 +53,11 @@ class LemonMediaController @Inject constructor(
             }
             mediaController?.let {
                 onControllerReady(it)
+            }
+            runBlocking {
+                preferencesRepository.getValue(DataStoreKeys.SHUFFLE_MODE_KEY, false).let {
+                    mediaController?.shuffleModeEnabled = it
+                }
             }
         }, ContextCompat.getMainExecutor(context))
     }
@@ -105,8 +117,11 @@ class LemonMediaController @Inject constructor(
         }
     }
 
-    fun shuffleMode(shuffleMode: Boolean) {
+    fun setShuffleMode(shuffleMode: Boolean) {
         mediaController?.shuffleModeEnabled = shuffleMode
+        applicationCoroutineScope.launch {
+            preferencesRepository.setValue(DataStoreKeys.SHUFFLE_MODE_KEY, shuffleMode)
+        }
     }
 
     fun loadPlaylist(playlist: List<MediaItem>) {

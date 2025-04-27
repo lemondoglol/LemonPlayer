@@ -21,4 +21,10 @@ object AppModule {
     @Singleton
     internal fun provideApplicationCoroutineScope(): ApplicationCoroutineScope =
         ApplicationCoroutineScope(SupervisorJob())
+
+    @Provides
+    @Singleton
+    fun bindDispatcherProvider(
+        defaultDispatcherProvider: DefaultDispatcherProvider,
+    ): DispatcherProvider = defaultDispatcherProvider
 }

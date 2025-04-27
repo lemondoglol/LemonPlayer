@@ -5,7 +5,7 @@ data class AppBarState(
 ) {
     companion object {
         val DEFAULT_STATE = AppBarState(
-            isShuffleModelOn = true,
+            isShuffleModelOn = false,
         )
     }
 }
